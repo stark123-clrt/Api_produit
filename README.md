@@ -1,186 +1,93 @@
-# Interface d’administration et API client
+API Catalogue de Produits & Catégories
 
-## Interface d’administration (CRUD produits & catégories)
+Ce projet est une API de catalogue de produits et de catégories réalisée avec Next.js. Il utilise Supabase comme base de données et inclut une interface d'administration web moderne (CRUD).
 
-Une interface web moderne est disponible à l’adresse `/products`.
+🛠️ Installation du projet
 
-- Accessible uniquement aux administrateurs (par défaut, sans authentification, tout utilisateur peut y accéder en local).
-- Permet d’ajouter, modifier, supprimer des produits et des catégories en temps réel.
-- Les catégories sont auto-incrémentées dans la base de données.
-- L’interface utilise l’API REST du projet : chaque action (ajout, édition, suppression) déclenche un appel à `/api/products` ou `/api/categories`.
+Pour démarrer ce projet en local :
 
-### Exemple d’utilisation côté admin
+1. Cloner le dépôt :
+    ```bash
+    git clone https://github.com/stark123-clrt/Api_produit.git
+    cd Api_produit
+    ```
+2. Installer les dépendances Node.js :
+    ```bash
+    npm install
+    ```
+3. Configurer les variables d'environnement :
+    Créez un fichier `.env.local` à la racine du projet et ajoutez ces  code Supabase :
 
-1. Aller sur http://localhost:3000/products
-2. Ajouter une catégorie (ex : "Informatique")
-3. Ajouter un produit en choisissant la catégorie créée
-4. Modifier ou supprimer produits et catégories à volonté
+    NEXT_PUBLIC_SUPABASE_URL="https://dcdiyhrladgeqklbvatx.supabase.co"
 
-## Utilisation de l’API côté client
+    NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjZGl5aHJsYWRnZXFrbGJ2YXR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1NjkwODcsImV4cCI6MjA4MDE0NTA4N30.tUenBT9S4udbYhS1ZO2XqEBX9VTBPdo4iisOEBq5bJo"
+    
 
-Les clients (front, mobile, Postman, etc.) peuvent consommer l’API produits :
+4. Lancer le serveur de développement :
+    ```bash
+    npm run dev
+    ```
+Le serveur sera accessible sur http://localhost:3000.
 
-- `GET /api/products` : liste tous les produits (avec nom de la catégorie)
-- `GET /api/categories` : liste toutes les catégories
-- `POST /api/products` : ajoute un produit (voir exemples plus bas)
-- `POST /api/categories` : ajoute une catégorie
-- `PUT /api/products` : modifie un produit
-- `PUT /api/categories` : modifie une catégorie
-- `DELETE /api/products` : supprime un produit
-- `DELETE /api/categories` : supprime une catégorie
+💻 Interface d’administration (CRUD)
 
-L’API est donc utilisable à la fois par l’interface d’administration et par tout client externe (Postman, front, mobile, etc.).
+Une interface web pour gérer les produits et les catégories est disponible :
 
----
-## Endpoints API (CRUD)
+- **URL d'accès** : http://localhost:3000/products
+- **Fonctionnalités** : L'interface permet l'ajout, la modification et la suppression (C.R.U.D.) des produits et des catégories en temps réel, synchronisées avec la base de données Supabase.
+- **Utilisation** : Ouvrez le lien et utilisez les formulaires pour gérer votre catalogue. Chaque action déclenche un appel vers l'API interne du projet (`/api/products` ou `/api/categories`).
+- **Remarque de sécurité** : L'interface et l'API sont ouvertes par défaut pour faciliter le développement local. Pour un déploiement, il est crucial d'ajouter un système d'authentification (ex. : Supabase Auth ou NextAuth) pour sécuriser l'accès aux routes d'administration (POST, PUT, DELETE).
 
-### Catégories
-- `GET    /api/categories` : Liste toutes les catégories
-- `POST   /api/categories` : Ajoute une catégorie (body : `{ "name": "Informatique" }`)
-- `PUT    /api/categories` : Modifie une catégorie (body : `{ "id": 1, "name": "Nouveau nom" }`)
-- `DELETE /api/categories` : Supprime une catégorie (body : `{ "id": 1 }`)
+🌐 Utilisation de l'API REST
 
-### Produits
-- `GET    /api/products` : Liste tous les produits
-- `POST   /api/products` : Ajoute un produit (body : `{ "name": "Ordinateur portable", "categoryid": 1, "price": 899.99 }`)
-- `PUT    /api/products` : Modifie un produit (body : `{ "id": 1, "name": "Nouveau nom", "categoryid": 2, "price": 100 }`)
-- `DELETE /api/products` : Supprime un produit (body : `{ "id": 1 }`)
+L'API est accessible via deux endpoints principaux et prend en charge les opérations CRUD via les méthodes HTTP standard.
 
-## Exemples d’utilisation avec Postman ou curl
+- **URL de base** : http://localhost:3000
 
-### Ajouter un produit
-POST http://localhost:3000/api/products
-Body (JSON) :
-```
-{
-	"name": "Clavier mécanique",
-	"categoryid": 1,
-	"price": 49.99
-}
-```
+| Ressource   | Méthode HTTP | Endpoint           | Description                       |
+|-------------|--------------|--------------------|-----------------------------------|
+| Produits    | GET          | /api/products      | Liste tous les produits           |
+| Produits    | POST         | /api/products      | Ajoute un produit                 |
+| Produits    | PUT          | /api/products      | Modifie un produit existant       |
+| Produits    | DELETE       | /api/products      | Supprime un produit               |
+| Catégories  | GET          | /api/categories    | Liste toutes les catégories       |
+| Catégories  | POST         | /api/categories    | Ajoute une catégorie              |
+| Catégories  | PUT          | /api/categories    | Modifie une catégorie existante   |
+| Catégories  | DELETE       | /api/categories    | Supprime une catégorie            |
 
-### Modifier un produit
-PUT http://localhost:3000/api/products
-Body (JSON) :
-```
-{
-	"id": 1,
-	"name": "Clavier gamer",
-	"price": 59.99
-}
-```
+### Exemples d'utilisation avec curl ou postman
 
-### Supprimer un produit
-DELETE http://localhost:3000/api/products
-Body (JSON) :
-```
-{
-	"id": 1
-}
-```
+1. Ajouter un produit (POST)
+    ```bash
+    curl -X POST http://localhost:3000/api/products \
+      -H "Content-Type: application/json" \
+      -d '{"name": "Ordinateur portable", "categoryid": 1, "price": 899.99}'
+    ```
+2. Modifier un produit (PUT)
+    ```bash
+    curl -X PUT http://localhost:3000/api/products \
+      -H "Content-Type: application/json" \
+      -d '{"id": 1, "name": "Laptop Gamer", "price": 1099.99}'
+    ```
+3. Supprimer une catégorie (DELETE)
+    ```bash
+    curl -X DELETE http://localhost:3000/api/categories \
+      -H "Content-Type: application/json" \
+      -d '{"id": 2}'
+    ```
 
-### Ajouter une catégorie
-POST http://localhost:3000/api/categories
-Body (JSON) :
-```
-{
-	"name": "Bureau"
-}
-```
+📁 Structure du projet
 
-### Modifier une catégorie
-PUT http://localhost:3000/api/categories
-Body (JSON) :
-```
-{
-	"id": 1,
-	"name": "Informatique et multimédia"
-}
-```
-
-### Supprimer une catégorie
-DELETE http://localhost:3000/api/categories
-Body (JSON) :
-```
-{
-	"id": 1
-}
-```
-
-# Mini API Catalogue
-
-Ce projet est une API catalogue de produits et catégories réalisée avec Next.js.
-
-## Structure du projet
+Voici un aperçu des fichiers clés :
 
 ```
 Api_produit/
 │
-├── data/
-│   ├── categories.json
-│   └── products.json
-│
 ├── pages/
-│   └── api/
-│       ├── categories.js
-│       └── products.js
+│   ├── api/
+│   │   ├── categories.js      # API route pour la gestion des catégories
+│   │   └── products.js        # API route pour la gestion des produits
+│   └── products.js            # Interface d'administration web (Front-end)
 │
 ├── package.json
-├── .gitignore
-└── README.md
-```
-
-## Installation
-
-1. Cloner le dépôt GitHub :
-	```bash
-	git clone https://github.com/stark123-clrt/Api_produit.git
-	cd Api_produit
-	```
-2. Installer les dépendances :
-	```bash
-	npm install
-	```
-
-## Lancement du serveur
-
-Pour démarrer le serveur de développement Next.js :
-```bash
-npm run dev
-```
-Le serveur sera accessible sur http://localhost:3000
-
-## Endpoints API
-http://localhost:3000/api/categories
-
-http://localhost:3000/api/products
-
-### Catégories
-- `GET    /api/categories` : Liste toutes les catégories
-- `POST   /api/categories` : Ajoute une catégorie (body : `{ name }`)
-- `PUT    /api/categories` : Modifie une catégorie (body : `{ id, newName }`)
-- `DELETE /api/categories` : Supprime une catégorie (body : `{ deleteId }`)
-
-### Produits
-- `GET    /api/products` : Liste tous les produits
-- `POST   /api/products` : Ajoute un produit (body : `{ name, categoryId, price }`)
-- `PUT    /api/products` : Modifie un produit (body : `{ id, newName, newCategoryId, newPrice }`)
-- `DELETE /api/products` : Supprime un produit (body : `{ deleteId }`)
-
-## Bonnes pratiques
-
-- Le dossier `node_modules` est exclu du dépôt grâce au fichier `.gitignore`.
-- Les données sont stockées dans des fichiers JSON pour la simplicité.
-- Les endpoints respectent les méthodes HTTP standards (GET, POST, PUT, DELETE).
-- Pour toute modification, créez une branche dédiée et ouvrez une Pull Request pour la revue de code.
-
-## Collaboration
-
-Ce projet est conçu pour la collaboration GitHub :
-- Travail en binôme
-- Branches de fonctionnalité
-- Pull Requests et revue de code
-
-## Tests
-
-Une partie Python est prévue pour des tests unitaires simples (voir consignes du TP).
+└── .env.local                 # Variables d'environnement (Supabase)
