@@ -1,125 +1,82 @@
+// API CRUD pour la gestion des produits avec Supabase
+import { createClient } from '@supabase/supabase-js';
 
-import fs from 'fs';
-import path from 'path';
-
-// Chemin du fichier JSON contenant les produits
-const filePath = path.join(process.cwd(), 'data', 'products.json');
-
-/**
- * Lit les produits depuis le fichier JSON.
- * @returns {Array} Liste des produits
- */
-function readProducts() {
-	try {
-		return JSON.parse(fs.readFileSync(filePath, 'utf8'));
-	} catch (error) {
-		// En cas d'erreur de lecture ou de parsing, retourne un tableau vide
-		return [];
-	// Amélioration : validation et gestion des erreurs renforcées
-	}
-}
+// Initialisation du client Supabase avec les variables d'environnement
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 
 /**
- * Écrit les produits dans le fichier JSON.
- * @param {Array} data - Liste des produits à sauvegarder
- */
-function writeProducts(data) {
-	fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-}
-
-/**
- * API handler pour la gestion des produits
+ * Handler Next.js pour les opérations CRUD sur les produits
  * @param {import('next').NextApiRequest} req
  * @param {import('next').NextApiResponse} res
  */
-export default function handler(req, res) {
-	let products = readProducts();
-	const { method } = req;
+export default async function handler(req, res) {
+  const { method } = req;
 
-	switch (method) {
-		case 'GET':
-			// Retourne tous les produits
-			res.status(200).json(products);
-			break;
-		case 'POST': {
-			// Ajoute un nouveau produit
-			const { name, categoryId, price } = req.body;
-			if (!name || typeof name !== 'string' || !name.trim()) {
-				res.status(400).json({ error: 'Le nom du produit est requis et doit être une chaîne non vide.' });
-				return;
-			}
-			if (!categoryId || typeof categoryId !== 'number') {
-				res.status(400).json({ error: 'L\'ID de catégorie est requis et doit être un nombre.' });
-				return;
-			}
-			if (price === undefined || typeof price !== 'number' || price < 0) {
-				res.status(400).json({ error: 'Le prix est requis et doit être un nombre positif.' });
-				return;
-			}
-			// Vérifie si le nom existe déjà
-			if (products.some(p => p.name.toLowerCase() === name.toLowerCase())) {
-				res.status(409).json({ error: 'Le produit existe déjà.' });
-				return;
-			}
-			const newProduct = {
-				id: products.length ? products[products.length - 1].id + 1 : 1,
-				name: name.trim(),
-				categoryId,
-				price,
-			};
-			products.push(newProduct);
-			writeProducts(products);
-			res.status(201).json(newProduct);
-			break;
-		}
-		case 'PUT': {
-			// Modifie un produit existant
-			const { id, newName, newCategoryId, newPrice } = req.body;
-			const prodIdx = products.findIndex(p => p.id === id);
-			if (prodIdx === -1) {
-				res.status(404).json({ error: 'Produit non trouvé.' });
-				return;
-			}
-			if (newName !== undefined) {
-				if (typeof newName !== 'string' || !newName.trim()) {
-					res.status(400).json({ error: 'Le nouveau nom doit être une chaîne non vide.' });
-					return;
-				}
-				products[prodIdx].name = newName.trim();
-			}
-			if (newCategoryId !== undefined) {
-				if (typeof newCategoryId !== 'number') {
-					res.status(400).json({ error: 'Le nouvel ID de catégorie doit être un nombre.' });
-					return;
-				}
-				products[prodIdx].categoryId = newCategoryId;
-			}
-			if (newPrice !== undefined) {
-				if (typeof newPrice !== 'number' || newPrice < 0) {
-					res.status(400).json({ error: 'Le nouveau prix doit être un nombre positif.' });
-					return;
-				}
-				products[prodIdx].price = newPrice;
-			}
-			writeProducts(products);
-			res.status(200).json(products[prodIdx]);
-			break;
-		}
-		case 'DELETE': {
-			// Supprime un produit par son id
-			const { deleteId } = req.body;
-			const filtered = products.filter(p => p.id !== deleteId);
-			if (filtered.length === products.length) {
-				res.status(404).json({ error: 'Produit non trouvé.' });
-				return;
-			}
-			writeProducts(filtered);
-			res.status(204).end();
-			break;
-		}
-		default:
-			// Méthode HTTP non supportée
-			res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
-			res.status(405).end(`Méthode ${method} non autorisée`);
-	}
+  switch (method) {
+    // Récupérer tous les produits
+    case 'GET': {
+      const { data, error } = await supabase.from('products').select('*');
+      if (error) {
+        res.status(500).json({ error: error.message });
+        return;
+      }
+      res.status(200).json(data);
+      break;
+    }
+    // Ajouter un produit
+    case 'POST': {
+      const { name, categoryid, price } = req.body;
+      if (!name || !categoryid || price === undefined) {
+        res.status(400).json({ error: 'Champs requis manquants.' });
+        return;
+      }
+      const { data, error } = await supabase.from('products').insert([{ name, categoryid, price }]).select().single();
+      if (error) {
+        res.status(500).json({ error: error.message });
+        return;
+      }
+      res.status(201).json(data);
+      break;
+    }
+    // Modifier un produit
+    case 'PUT': {
+      const { id, name, categoryid, price } = req.body;
+      if (!id) {
+        res.status(400).json({ error: 'ID requis.' });
+        return;
+      }
+      const updateFields = {};
+      if (name !== undefined) updateFields.name = name;
+      if (categoryid !== undefined) updateFields.categoryid = categoryid;
+      if (price !== undefined) updateFields.price = price;
+      const { data, error } = await supabase.from('products').update(updateFields).eq('id', id).select().single();
+      if (error) {
+        res.status(500).json({ error: error.message });
+        return;
+      }
+      res.status(200).json(data);
+      break;
+    }
+    // Supprimer un produit
+    case 'DELETE': {
+      const { id } = req.body;
+      if (!id) {
+        res.status(400).json({ error: 'ID requis.' });
+        return;
+      }
+      const { error } = await supabase.from('products').delete().eq('id', id);
+      if (error) {
+        res.status(500).json({ error: error.message });
+        return;
+      }
+      res.status(204).end();
+      break;
+    }
+    default:
+      res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
+      res.status(405).end(`Méthode ${method} non autorisée`);
+  }
 }

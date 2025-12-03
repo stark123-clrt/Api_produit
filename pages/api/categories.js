@@ -1,98 +1,78 @@
 
-import fs from 'fs';
-import path from 'path';
+// API CRUD pour la gestion des catégories avec Supabase
+import { createClient } from '@supabase/supabase-js';
 
-// Chemin du fichier JSON contenant les catégories
-const filePath = path.join(process.cwd(), 'data', 'categories.json');
-
-/**
- * Lit les catégories depuis le fichier JSON.
- * @returns {Array} Liste des catégories
- */
-function readCategories() {
-	try {
-		return JSON.parse(fs.readFileSync(filePath, 'utf8'));
-	} catch (error) {
-		// En cas d'erreur de lecture ou de parsing, retourne un tableau vide
-		return [];
-	// Amélioration : validation et gestion des erreurs renforcées
-	}
-}
+// Initialisation du client Supabase avec les variables d'environnement
+const supabase = createClient(
+	process.env.NEXT_PUBLIC_SUPABASE_URL,
+	process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 
 /**
- * Écrit les catégories dans le fichier JSON.
- * @param {Array} data - Liste des catégories à sauvegarder
- */
-function writeCategories(data) {
-	fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-}
-
-/**
- * API handler pour la gestion des catégories
+ * Handler Next.js pour les opérations CRUD sur les catégories
  * @param {import('next').NextApiRequest} req
  * @param {import('next').NextApiResponse} res
  */
-export default function handler(req, res) {
-	let categories = readCategories();
+export default async function handler(req, res) {
 	const { method } = req;
 
 	switch (method) {
-		case 'GET':
-			// Retourne toutes les catégories
-			res.status(200).json(categories);
+		// Récupérer toutes les catégories
+		case 'GET': {
+			const { data, error } = await supabase.from('categories').select('*');
+			if (error) {
+				res.status(500).json({ error: error.message });
+				return;
+			}
+			res.status(200).json(data);
 			break;
+		}
+		// Ajouter une catégorie
 		case 'POST': {
-			// Ajoute une nouvelle catégorie
 			const { name } = req.body;
 			if (!name || typeof name !== 'string' || !name.trim()) {
 				res.status(400).json({ error: 'Le nom est requis et doit être une chaîne non vide.' });
 				return;
 			}
-			// Vérifie si le nom existe déjà
-			if (categories.some(c => c.name.toLowerCase() === name.toLowerCase())) {
-				res.status(409).json({ error: 'La catégorie existe déjà.' });
+			const { data, error } = await supabase.from('categories').insert([{ name: name.trim() }]).select().single();
+			if (error) {
+				res.status(500).json({ error: error.message });
 				return;
 			}
-			const newCategory = {
-				id: categories.length ? categories[categories.length - 1].id + 1 : 1,
-				name: name.trim(),
-			};
-			categories.push(newCategory);
-			writeCategories(categories);
-			res.status(201).json(newCategory);
+			res.status(201).json(data);
 			break;
 		}
+		// Modifier une catégorie
 		case 'PUT': {
-			// Modifie le nom d'une catégorie existante
-			const { id, newName } = req.body;
-			const catIdx = categories.findIndex(c => c.id === id);
-			if (catIdx === -1) {
-				res.status(404).json({ error: 'Catégorie non trouvée.' });
+			const { id, name } = req.body;
+			if (!id || !name || typeof name !== 'string' || !name.trim()) {
+				res.status(400).json({ error: 'ID et nom requis.' });
 				return;
 			}
-			if (!newName || typeof newName !== 'string' || !newName.trim()) {
-				res.status(400).json({ error: 'Le nouveau nom est requis et doit être une chaîne non vide.' });
+			const { data, error } = await supabase.from('categories').update({ name: name.trim() }).eq('id', id).select().single();
+			if (error) {
+				res.status(500).json({ error: error.message });
 				return;
 			}
-			categories[catIdx].name = newName.trim();
-			writeCategories(categories);
-			res.status(200).json(categories[catIdx]);
+			res.status(200).json(data);
 			break;
 		}
+		// Supprimer une catégorie
 		case 'DELETE': {
-			// Supprime une catégorie par son id
-			const { deleteId } = req.body;
-			const filtered = categories.filter(c => c.id !== deleteId);
-			if (filtered.length === categories.length) {
-				res.status(404).json({ error: 'Catégorie non trouvée.' });
+			const { id } = req.body;
+			if (!id) {
+				res.status(400).json({ error: 'ID requis.' });
 				return;
 			}
-			writeCategories(filtered);
+			const { error } = await supabase.from('categories').delete().eq('id', id);
+			if (error) {
+				res.status(500).json({ error: error.message });
+				return;
+			}
 			res.status(204).end();
 			break;
 		}
 		default:
-			// Méthode HTTP non supportée
 			res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
 			res.status(405).end(`Méthode ${method} non autorisée`);
 	}
