@@ -11,5 +11,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
+  },
+  "devDependencies": {
+    "vercel": "^48.12.1"
   }
 }
