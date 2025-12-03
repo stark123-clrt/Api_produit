@@ -18,9 +18,9 @@ Pour démarrer ce projet en local :
 3. Configurer les variables d'environnement :
     Créez un fichier `.env.local` à la racine du projet et ajoutez ces  code Supabase :
 
-    NEXT_PUBLIC_SUPABASE_URL="https://dcdiyhrladgeqklbvatx.supabase.co"
+    NEXT_PUBLIC_SUPABASE_URL="........."
 
-    NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjZGl5aHJsYWRnZXFrbGJ2YXR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1NjkwODcsImV4cCI6MjA4MDE0NTA4N30.tUenBT9S4udbYhS1ZO2XqEBX9VTBPdo4iisOEBq5bJo"
+    NEXT_PUBLIC_SUPABASE_ANON_KEY="........"
     
 
 4. Lancer le serveur de développement :
