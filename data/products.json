@@ -1,5 +1,22 @@
 [
 	{ "id": 1, "name": "Ordinateur portable", "categoryId": 1, "price": 899.99 },
 	{ "id": 2, "name": "Aspirateur", "categoryId": 2, "price": 129.99 },
-	{ "id": 3, "name": "Raquette de tennis", "categoryId": 3, "price": 59.99 }
+	{ "id": 3, "name": "Raquette de tennis", "categoryId": 3, "price": 59.99 },
+	{ "id": 4, "name": "Smartphone", "categoryId": 1, "price": 499.99 },
+	{ "id": 5, "name": "Machine à café", "categoryId": 2, "price": 89.99 },
+	{ "id": 6, "name": "Ballon de football", "categoryId": 3, "price": 24.99 },
+	{ "id": 7, "name": "Tablette", "categoryId": 1, "price": 299.99 },
+	{ "id": 8, "name": "Télévision", "categoryId": 1, "price": 699.99 },
+	{ "id": 9, "name": "Sèche-cheveux", "categoryId": 2, "price": 39.99 },
+	{ "id": 10, "name": "Mixeur", "categoryId": 2, "price": 49.99 },
+	{ "id": 11, "name": "Tondeuse", "categoryId": 2, "price": 159.99 },
+	{ "id": 12, "name": "Vélo", "categoryId": 3, "price": 249.99 },
+	{ "id": 13, "name": "Tapis de yoga", "categoryId": 3, "price": 19.99 },
+	{ "id": 14, "name": "Montre connectée", "categoryId": 1, "price": 199.99 },
+	{ "id": 15, "name": "Grille-pain", "categoryId": 2, "price": 29.99 },
+	{ "id": 16, "name": "Appareil photo", "categoryId": 1, "price": 349.99 },
+	{ "id": 17, "name": "Bouilloire", "categoryId": 2, "price": 24.99 },
+	{ "id": 18, "name": "Tente de camping", "categoryId": 3, "price": 89.99 },
+	{ "id": 19, "name": "Chaussures de sport", "categoryId": 3, "price": 69.99 },
+	{ "id": 20, "name": "Enceinte Bluetooth", "categoryId": 1, "price": 59.99 }
 ]
