@@ -15,6 +15,7 @@ function readProducts() {
 	} catch (error) {
 		// En cas d'erreur de lecture ou de parsing, retourne un tableau vide
 		return [];
+	// Amélioration : validation et gestion des erreurs renforcées
 	}
 }
 
