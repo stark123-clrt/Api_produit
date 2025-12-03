@@ -1,0 +1,5 @@
+[
+	{ "id": 1, "name": "Ordinateur portable", "categoryId": 1, "price": 899.99 },
+	{ "id": 2, "name": "Aspirateur", "categoryId": 2, "price": 129.99 },
+	{ "id": 3, "name": "Raquette de tennis", "categoryId": 3, "price": 59.99 }
+]
