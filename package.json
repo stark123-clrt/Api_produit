@@ -11,10 +11,11 @@
     "start": "next start"
   },
   "dependencies": {
+    "@n8n/chat": "^1.0.0-rc.0",
     "@supabase/supabase-js": "^2.45.0",
+    "lucide-react": "^0.263.1",
     "next": "14.2.13",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "lucide-react": "^0.263.1"
+    "react-dom": "^18.3.1"
   }
 }
