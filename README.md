@@ -16,7 +16,7 @@ Pour démarrer ce projet en local :
     npm install
     ```
 3. Configurer les variables d'environnement :
-    Créez un fichier `.env.local` à la racine du projet et ajoutez ces  code Supabase :
+    Créez un fichier `.env.local` à la racine du projet et ajoutez les codes Supabase :
 
     NEXT_PUBLIC_SUPABASE_URL="..........."
 
@@ -91,7 +91,6 @@ Api_produit/
 │
 ├── package.json
 └── .env.local                 # Variables d'environnement (Supabase)
-
-
+```
 
 Collaborateurs : Christian ONDIYO et Samir NZAMBA
