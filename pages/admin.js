@@ -7,16 +7,19 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard');
+
   
   // États formulaire produit
   const [showProductModal, setShowProductModal] = useState(false);
   const [productForm, setProductForm] = useState({ name: '', categoryid: '', price: '' });
   const [editProductId, setEditProductId] = useState(null);
   
+
   // États formulaire catégorie
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [categoryForm, setCategoryForm] = useState({ name: '' });
   const [editCategoryId, setEditCategoryId] = useState(null);
+
 
   // Récupère les données
   const fetchData = async () => {
@@ -38,6 +41,8 @@ export default function AdminDashboard() {
       setLoading(false);
     }
   };
+
+
 
   // Rafraîchissement silencieux en arrière-plan (sans loader)
   const silentFetchData = async () => {
@@ -64,6 +69,7 @@ export default function AdminDashboard() {
     const interval = setInterval(() => {
       silentFetchData();
     }, 10000);
+    
     
     // Charger le chatbot n8n via CDN
     const loadChat = () => {
