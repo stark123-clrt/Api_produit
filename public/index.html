@@ -3,88 +3,1075 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard API Produits</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Dashboard API Produits | Nexus</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00f0ff;
+            --primary-glow: rgba(0, 240, 255, 0.4);
+            --secondary: #ff00e5;
+            --secondary-glow: rgba(255, 0, 229, 0.4);
+            --accent: #7b61ff;
+            --success: #00ff9d;
+            --warning: #ffb800;
+            --danger: #ff3d71;
+            --bg-dark: #0a0a0f;
+            --bg-card: rgba(20, 20, 35, 0.7);
+            --bg-card-hover: rgba(30, 30, 50, 0.8);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.6);
+            --text-muted: rgba(255, 255, 255, 0.4);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            
+            --chat--color--primary: #00f0ff;
+            --chat--color--primary-shade-50: #00d4e0;
+            --chat--color--primary--shade-100: #00b8c4;
+            --chat--color--secondary: #ff00e5;
+            --chat--color-secondary-shade-50: #d400bf;
+            --chat--window--width: 420px;
+            --chat--window--height: 650px;
+            --chat--toggle--size: 64px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(0, 240, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(255, 0, 229, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(123, 97, 255, 0.08) 0%, transparent 60%);
+            animation: bgRotate 30s linear infinite;
+        }
+
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+        }
+
+        @keyframes bgRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Floating orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--primary-glow);
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: var(--secondary-glow);
+            bottom: 20%;
+            right: 15%;
+            animation-delay: -5s;
+        }
+
+        .orb-3 {
+            width: 250px;
+            height: 250px;
+            background: rgba(123, 97, 255, 0.3);
+            top: 50%;
+            left: 50%;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, -50px) scale(1.1); }
+            50% { transform: translate(-30px, 30px) scale(0.9); }
+            75% { transform: translate(30px, 50px) scale(1.05); }
+        }
+
+        /* Main container */
+        #app {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: rgba(10, 10, 15, 0.8);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.5rem;
+            box-shadow: 0 0 30px var(--primary-glow);
+            animation: logoPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { box-shadow: 0 0 30px var(--primary-glow); }
+            50% { box-shadow: 0 0 50px var(--primary-glow), 0 0 80px var(--secondary-glow); }
+        }
+
+        .brand h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .brand p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: 'Space Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: statusPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.5); }
+            50% { opacity: 0.8; box-shadow: 0 0 0 8px rgba(0, 255, 157, 0); }
+        }
+
+        /* Navigation */
+        nav {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+            padding: 1rem 0;
+        }
+
+        .tab-btn {
+            position: relative;
+            padding: 0.875rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .tab-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 12px;
+        }
+
+        .tab-btn span {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: var(--glass-bg);
+        }
+
+        .tab-btn.active {
+            color: var(--bg-dark);
+        }
+
+        .tab-btn.active::before {
+            opacity: 1;
+        }
+
+        .tab-icon {
+            font-size: 1.1rem;
+        }
+
+        /* Main content */
+        main {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Error toast */
+        #error {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(150%);
+            background: linear-gradient(135deg, rgba(255, 61, 113, 0.9), rgba(255, 61, 113, 0.7));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 61, 113, 0.3);
+            padding: 1rem 2rem;
+            border-radius: 16px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 20px 40px rgba(255, 61, 113, 0.3);
+        }
+
+        #error.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Loading */
+        #loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            gap: 2rem;
+        }
+
+        #loading.hidden {
+            display: none !important;
+        }
+
+        #content.hidden {
+            display: none !important;
+        }
+
+        .loader {
+            position: relative;
+            width: 100px;
+            height: 100px;
+        }
+
+        .loader-ring {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            animation: spin 1.5s linear infinite;
+        }
+
+        .loader-ring:nth-child(1) {
+            border-top-color: var(--primary);
+            animation-duration: 1.5s;
+        }
+
+        .loader-ring:nth-child(2) {
+            inset: 10px;
+            border-right-color: var(--secondary);
+            animation-duration: 2s;
+            animation-direction: reverse;
+        }
+
+        .loader-ring:nth-child(3) {
+            inset: 20px;
+            border-bottom-color: var(--accent);
+            animation-duration: 2.5s;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-family: 'Space Mono', monospace;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            animation: loadingPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes loadingPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* Cards */
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 1200px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 640px) {
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+
+        .stat-card {
+            position: relative;
+            padding: 1.75rem;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--stat-color), transparent);
+        }
+
+        .stat-card.cyan { --stat-color: var(--primary); }
+        .stat-card.magenta { --stat-color: var(--secondary); }
+        .stat-card.purple { --stat-color: var(--accent); }
+        .stat-card.green { --stat-color: var(--success); }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--stat-color), transparent);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.25rem;
+            opacity: 0.9;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            font-family: 'Space Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
+            background: linear-gradient(135deg, var(--text-primary), var(--stat-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-value .currency {
+            font-size: 1.5rem;
+            opacity: 0.7;
+        }
+
+        /* Table styles */
+        .table-section {
+            margin-top: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .section-title .icon {
+            font-size: 1.5rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #00c4cc);
+            color: var(--bg-dark);
+            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 240, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--secondary), #cc00b8);
+            color: white;
+            box-shadow: 0 4px 20px rgba(255, 0, 229, 0.3);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 0, 229, 0.4);
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-size: 0.7rem;
+            font-family: 'Space Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s ease;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .category-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 1rem;
+            background: linear-gradient(135deg, rgba(123, 97, 255, 0.2), rgba(255, 0, 229, 0.1));
+            border: 1px solid rgba(123, 97, 255, 0.3);
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--accent);
+        }
+
+        .price {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .action-btn:hover {
+            background: var(--bg-card-hover);
+            transform: scale(1.1);
+        }
+
+        .action-btn.edit:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+        }
+
+        .action-btn.delete:hover {
+            border-color: var(--danger);
+            box-shadow: 0 0 20px rgba(255, 61, 113, 0.3);
+        }
+
+        /* Categories grid */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 2rem;
+        }
+
+        .category-card {
+            position: relative;
+            padding: 2rem;
+            cursor: pointer;
+        }
+
+        .category-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            border-radius: 24px;
+        }
+
+        .category-card:hover::before {
+            opacity: 0.05;
+        }
+
+        .category-card-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .category-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--accent), var(--secondary));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+        }
+
+        .category-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .category-count {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .count-number {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        /* Empty state */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-description {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            width: 90%;
+            max-width: 480px;
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal-overlay.show .modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 61, 113, 0.2);
+            border-color: var(--danger);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.75rem;
+            font-family: 'Space Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .modal-footer {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .btn-ghost:hover {
+            background: var(--glass-bg);
+            color: var(--text-primary);
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        .slide-up {
+            animation: slideUp 0.6s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stagger-1 { animation-delay: 0.1s; opacity: 0; }
+        .stagger-2 { animation-delay: 0.2s; opacity: 0; }
+        .stagger-3 { animation-delay: 0.3s; opacity: 0; }
+        .stagger-4 { animation-delay: 0.4s; opacity: 0; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .nav-tabs {
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+            }
+
+            .section-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+            }
+
+            main {
+                padding: 1rem;
+            }
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
-    <div id="app" class="min-h-screen">
-        <header class="bg-white shadow-sm border-b">
-            <div class="max-w-7xl mx-auto px-4 py-4">
-                <h1 class="text-2xl font-bold text-gray-900">Dashboard API Produits</h1>
-                <p class="text-sm text-gray-600">Gestion des produits et catégories</p>
+<body>
+    <!-- Background animation -->
+    <div class="bg-animation">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="grid-overlay"></div>
+    </div>
+
+    <div id="app">
+        <header>
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo">N</div>
+                    <div class="brand">
+                        <h1>Nexus Dashboard</h1>
+                        <p>API Products Manager</p>
+                    </div>
+                </div>
+                <div class="status-badge">
+                    <span class="status-dot"></span>
+                    <span>Système opérationnel</span>
+                </div>
             </div>
         </header>
 
-        <nav class="bg-white shadow-sm border-b">
-            <div class="max-w-7xl mx-auto px-4">
-                <div class="flex space-x-8">
-                    <button onclick="showTab('dashboard')" class="tab-btn py-4 px-2 border-b-2 border-blue-500 text-blue-600 font-medium text-sm">
-                        Dashboard
-                    </button>
-                    <button onclick="showTab('products')" class="tab-btn py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm">
-                        Produits
-                    </button>
-                    <button onclick="showTab('categories')" class="tab-btn py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm">
-                        Catégories
-                    </button>
-                </div>
+        <nav>
+            <div class="nav-tabs">
+                <button onclick="showTab('dashboard', this)" class="tab-btn active">
+                    <span><span class="tab-icon"><i class="fas fa-chart-line"></i></span> Dashboard</span>
+                </button>
+                <button onclick="showTab('products', this)" class="tab-btn">
+                    <span><span class="tab-icon"><i class="fas fa-box"></i></span> Produits</span>
+                </button>
+                <button onclick="showTab('categories', this)" class="tab-btn">
+                    <span><i class="fas fa-tags"></i> Catégories</span>
+                </button>
             </div>
         </nav>
 
-        <main class="max-w-7xl mx-auto px-4 py-8">
-            <div id="error" class="hidden mb-4 bg-red-50 border-l-4 border-red-500 p-4 rounded"></div>
-            <div id="loading" class="flex items-center justify-center h-64">
-                <div class="text-center">
-                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
-                    <p class="mt-4 text-gray-600">Chargement...</p>
+        <main>
+            <div id="error"></div>
+            
+            <div id="loading" class="hidden">
+                <div class="loader">
+                    <div class="loader-ring"></div>
+                    <div class="loader-ring"></div>
+                    <div class="loader-ring"></div>
                 </div>
+                <p class="loading-text">Chargement des données...</p>
             </div>
 
             <div id="content" class="hidden"></div>
         </main>
     </div>
 
+    <!-- Modal -->
+    <div id="modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">Titre</h3>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body" id="modal-body"></div>
+            <div class="modal-footer" id="modal-footer"></div>
+        </div>
+    </div>
+
+    <!-- Main Script -->
     <script>
         let products = [];
         let categories = [];
         let currentTab = 'dashboard';
 
+        // Fetch data from API
         async function fetchData() {
+            const contentEl = document.getElementById('content');
+            
             try {
                 const [prodRes, catRes] = await Promise.all([
                     fetch('/api/products'),
                     fetch('/api/categories')
                 ]);
+                
+                if (!prodRes.ok || !catRes.ok) {
+                    throw new Error('Erreur lors de la récupération des données');
+                }
+                
                 products = await prodRes.json();
                 categories = await catRes.json();
-                document.getElementById('loading').classList.add('hidden');
-                document.getElementById('content').classList.remove('hidden');
+                
+                // Afficher le contenu
+                contentEl.style.display = 'block';
+                contentEl.classList.remove('hidden');
+                
                 renderTab(currentTab);
             } catch (error) {
-                showError(error.message);
+                contentEl.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                        <h3 class="empty-title">Connexion impossible</h3>
+                        <p class="empty-description">${escapeHtml(error.message)}</p>
+                        <button class="btn btn-primary" onclick="fetchData()">
+                            <i class="fas fa-redo"></i> Réessayer
+                        </button>
+                    </div>
+                `;
             }
         }
 
+        // Show error toast
         function showError(message) {
             const errorDiv = document.getElementById('error');
             errorDiv.textContent = message;
-            errorDiv.classList.remove('hidden');
-            setTimeout(() => errorDiv.classList.add('hidden'), 5000);
+            errorDiv.classList.add('show');
+            setTimeout(() => errorDiv.classList.remove('show'), 5000);
         }
 
-        function showTab(tab) {
+        // Tab navigation
+        function showTab(tab, btn) {
             currentTab = tab;
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('border-blue-500', 'text-blue-600');
-                btn.classList.add('border-transparent', 'text-gray-500');
-            });
-            event.target.classList.add('border-blue-500', 'text-blue-600');
-            event.target.classList.remove('border-transparent', 'text-gray-500');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
             renderTab(tab);
         }
 
+        // Render current tab
         function renderTab(tab) {
             const content = document.getElementById('content');
+            content.classList.add('fade-in');
+            
             if (tab === 'dashboard') {
                 renderDashboard(content);
             } else if (tab === 'products') {
@@ -94,146 +1081,304 @@
             }
         }
 
+        // Dashboard view
         function renderDashboard(container) {
             const totalProducts = products.length;
             const totalCategories = categories.length;
-            const avgPrice = products.length > 0 ? (products.reduce((sum, p) => sum + parseFloat(p.price), 0) / products.length).toFixed(2) : 0;
-            const totalValue = products.reduce((sum, p) => sum + parseFloat(p.price), 0).toFixed(2);
+            const avgPrice = products.length > 0 
+                ? (products.reduce((sum, p) => sum + parseFloat(p.price || 0), 0) / products.length).toFixed(2) 
+                : '0.00';
+            const totalValue = products.reduce((sum, p) => sum + parseFloat(p.price || 0), 0).toFixed(2);
 
             container.innerHTML = `
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <p class="text-sm text-gray-600">Total Produits</p>
-                        <p class="text-3xl font-bold text-gray-900">${totalProducts}</p>
+                <div class="stats-grid">
+                    <div class="glass-card stat-card cyan slide-up stagger-1">
+                        <div class="stat-icon"><i class="fas fa-box"></i></div>
+                        <p class="stat-label">Total Produits</p>
+                        <p class="stat-value">${totalProducts}</p>
                     </div>
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <p class="text-sm text-gray-600">Catégories</p>
-                        <p class="text-3xl font-bold text-gray-900">${totalCategories}</p>
+                    <div class="glass-card stat-card magenta slide-up stagger-2">
+                        <div class="stat-icon"><i class="fas fa-tags"></i></div>
+                        <p class="stat-label">Catégories</p>
+                        <p class="stat-value">${totalCategories}</p>
                     </div>
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <p class="text-sm text-gray-600">Prix Moyen</p>
-                        <p class="text-3xl font-bold text-gray-900">${avgPrice} €</p>
+                    <div class="glass-card stat-card purple slide-up stagger-3">
+                        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                        <p class="stat-label">Prix Moyen</p>
+                        <p class="stat-value">${avgPrice}<span class="currency">€</span></p>
                     </div>
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <p class="text-sm text-gray-600">Valeur Totale</p>
-                        <p class="text-3xl font-bold text-gray-900">${totalValue} €</p>
+                    <div class="glass-card stat-card green slide-up stagger-4">
+                        <div class="stat-icon"><i class="fas fa-euro-sign"></i></div>
+                        <p class="stat-label">Valeur Totale</p>
+                        <p class="stat-value">${totalValue}<span class="currency">€</span></p>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-lg shadow">
-                    <div class="p-6 border-b">
-                        <h2 class="text-lg font-semibold text-gray-900">Produits Récents</h2>
+                <div class="glass-card table-section slide-up" style="animation-delay: 0.5s; opacity: 0;">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <span class="icon"><i class="fas fa-bolt"></i></span>
+                            Produits Récents
+                        </h2>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="bg-gray-50 border-b">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nom</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Catégorie</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Prix</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200">
-                                ${products.slice().reverse().slice(0, 5).map(p => `
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4 text-sm font-medium text-gray-900">${p.name}</td>
-                                        <td class="px-6 py-4 text-sm text-gray-600">
-                                            <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-medium">
-                                                ${getCategoryName(p.categoryid)}
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 text-sm font-semibold text-gray-900">${parseFloat(p.price).toFixed(2)} €</td>
+                    <div class="table-container">
+                        ${products.length > 0 ? `
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Produit</th>
+                                        <th>Catégorie</th>
+                                        <th>Prix</th>
                                     </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    ${products.slice().reverse().slice(0, 5).map(p => `
+                                        <tr>
+                                            <td class="product-name">${escapeHtml(p.name)}</td>
+                                            <td>
+                                                <span class="category-badge">
+                                                    <i class="fas fa-tag"></i> ${escapeHtml(getCategoryName(p.categoryId))}
+                                                </span>
+                                            </td>
+                                            <td class="price">${parseFloat(p.price || 0).toFixed(2)} €</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        ` : `
+                            <div class="empty-state">
+                                <div class="empty-icon"><i class="fas fa-box"></i></div>
+                                <h3 class="empty-title">Aucun produit</h3>
+                                <p class="empty-description">Commencez par ajouter votre premier produit</p>
+                            </div>
+                        `}
                     </div>
                 </div>
             `;
         }
 
+        // Products view
         function renderProducts(container) {
             container.innerHTML = `
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-gray-900">Gestion des Produits</h2>
-                    <button onclick="addProduct()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                        + Nouveau Produit
+                <div class="section-header" style="padding: 0 0 1.5rem 0; border: none;">
+                    <h2 class="section-title">
+                        <span class="icon"><i class="fas fa-box"></i></span>
+                        Gestion des Produits
+                    </h2>
+                    <button class="btn btn-primary" onclick="openProductModal()">
+                        <i class="fas fa-star"></i> Nouveau Produit
                     </button>
                 </div>
-                <div class="bg-white rounded-lg shadow overflow-hidden">
-                    <table class="w-full">
-                        <thead class="bg-gray-50 border-b">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nom</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Catégorie</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Prix</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200">
-                            ${products.map(p => `
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 text-sm font-medium text-gray-900">${p.name}</td>
-                                    <td class="px-6 py-4 text-sm">
-                                        <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-medium">
-                                            ${getCategoryName(p.categoryid)}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-sm font-semibold text-gray-900">${parseFloat(p.price).toFixed(2)} €</td>
-                                    <td class="px-6 py-4 text-sm text-right">
-                                        <button onclick="editProduct(${p.id})" class="text-blue-600 hover:text-blue-800 mr-3">✏️</button>
-                                        <button onclick="deleteProduct(${p.id})" class="text-red-600 hover:text-red-800">🗑️</button>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
+
+                <div class="glass-card table-section slide-up">
+                    <div class="table-container">
+                        ${products.length > 0 ? `
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Produit</th>
+                                        <th>Catégorie</th>
+                                        <th>Prix</th>
+                                        <th style="text-align: right;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${products.map(p => `
+                                        <tr>
+                                            <td class="product-name">${escapeHtml(p.name)}</td>
+                                            <td>
+                                                <span class="category-badge">
+                                                    <i class="fas fa-tag"></i> ${escapeHtml(getCategoryName(p.categoryId))}
+                                                </span>
+                                            </td>
+                                            <td class="price">${parseFloat(p.price || 0).toFixed(2)} €</td>
+                                            <td>
+                                                <div class="actions">
+                                                    <button class="action-btn edit" onclick="openProductModal(${p.id})" title="Modifier">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="action-btn delete" onclick="deleteProduct(${p.id})" title="Supprimer">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        ` : `
+                            <div class="empty-state">
+                                <div class="empty-icon"><i class="fas fa-box"></i></div>
+                                <h3 class="empty-title">Aucun produit</h3>
+                                <p class="empty-description">Créez votre premier produit pour commencer</p>
+                                <button class="btn btn-primary" onclick="openProductModal()">
+                                    <i class="fas fa-star"></i> Créer un produit
+                                </button>
+                            </div>
+                        `}
+                    </div>
                 </div>
             `;
         }
 
+        // Categories view
         function renderCategories(container) {
             container.innerHTML = `
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-gray-900">Gestion des Catégories</h2>
-                    <button onclick="addCategory()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
-                        + Nouvelle Catégorie
+                <div class="section-header" style="padding: 0 0 1.5rem 0; border: none;">
+                    <h2 class="section-title">
+                        <span class="icon"><i class="fas fa-tag"></i></span>
+                        Gestion des Catégories
+                    </h2>
+                    <button class="btn btn-secondary" onclick="openCategoryModal()">
+                        <i class="fas fa-star"></i> Nouvelle Catégorie
                     </button>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    ${categories.map(c => `
-                        <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg">
-                            <div class="flex items-center justify-between mb-4">
-                                <h3 class="text-lg font-semibold text-gray-900">${c.name}</h3>
-                                <div class="flex gap-2">
-                                    <button onclick="editCategory(${c.id})" class="text-blue-600 hover:text-blue-800">✏️</button>
-                                    <button onclick="deleteCategory(${c.id})" class="text-red-600 hover:text-red-800">🗑️</button>
+
+                ${categories.length > 0 ? `
+                    <div class="categories-grid">
+                        ${categories.map((c, i) => `
+                            <div class="glass-card category-card slide-up" style="animation-delay: ${i * 0.1}s; opacity: 0;">
+                                <div class="category-card-content">
+                                    <div class="category-header">
+                                        <div class="category-icon"><i class="fas fa-folder"></i></div>
+                                        <div class="actions">
+                                            <button class="action-btn edit" onclick="openCategoryModal(${c.id})" title="Modifier">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="action-btn delete" onclick="deleteCategory(${c.id})" title="Supprimer">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <h3 class="category-name">${escapeHtml(c.name)}</h3>
+                                    <p class="category-count">
+                                        <span class="count-number">${products.filter(p => p.categoryid === c.id).length}</span>
+                                        produit(s) associé(s)
+                                    </p>
                                 </div>
                             </div>
-                            <p class="text-sm text-gray-600">${products.filter(p => p.categoryid === c.id).length} produit(s)</p>
+                        `).join('')}
+                    </div>
+                ` : `
+                    <div class="glass-card">
+                        <div class="empty-state">
+                            <div class="empty-icon"><i class="fas fa-inbox"></i></div>
+                            <h3 class="empty-title">Aucune catégorie</h3>
+                            <p class="empty-description">Créez votre première catégorie pour organiser vos produits</p>
+                            <button class="btn btn-secondary" onclick="openCategoryModal()">
+                                <i class="fas fa-star"></i> Créer une catégorie
+                            </button>
                         </div>
-                    `).join('')}
-                </div>
+                    </div>
+                `}
             `;
         }
 
+        // Helper functions
         function getCategoryName(id) {
             const cat = categories.find(c => c.id === id);
-            return cat ? cat.name : id;
+            return cat ? cat.name : String(id);
         }
 
-        async function addProduct() {
-            const name = prompt('Nom du produit:');
-            if (!name) return;
-            const categoryid = parseInt(prompt('ID Catégorie:'));
-            const price = parseFloat(prompt('Prix:'));
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return '';
+            const div = document.createElement('div');
+            div.textContent = String(text);
+            return div.innerHTML;
+        }
+
+        // Modal functions
+        function openModal() {
+            document.getElementById('modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+        }
+
+        function openProductModal(id = null) {
+            const product = id ? products.find(p => p.id === id) : null;
+            const isEdit = !!product;
             
+            document.getElementById('modal-title').textContent = isEdit ? 'Modifier le produit' : 'Nouveau produit';
+            document.getElementById('modal-body').innerHTML = `
+                <div class="form-group">
+                    <label class="form-label">Nom du produit</label>
+                    <input type="text" class="form-input" id="product-name" placeholder="Ex: iPhone 15 Pro" value="${isEdit ? escapeHtml(product.name) : ''}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Catégorie</label>
+                    <select class="form-select" id="product-category">
+                        <option value="">Sélectionner une catégorie</option>
+                        ${categories.map(c => `
+                            <option value="${c.id}" ${isEdit && product.categoryid === c.id ? 'selected' : ''}>
+                                ${escapeHtml(c.name)}
+                            </option>
+                        `).join('')}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Prix (€)</label>
+                    <input type="number" class="form-input" id="product-price" placeholder="0.00" step="0.01" min="0" value="${isEdit ? product.price : ''}">
+                </div>
+            `;
+            document.getElementById('modal-footer').innerHTML = `
+                <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+                <button class="btn btn-primary" onclick="saveProduct(${id})">${isEdit ? 'Modifier' : 'Créer'}</button>
+            `;
+            openModal();
+        }
+
+        function openCategoryModal(id = null) {
+            const category = id ? categories.find(c => c.id === id) : null;
+            const isEdit = !!category;
+            
+            document.getElementById('modal-title').textContent = isEdit ? 'Modifier la catégorie' : 'Nouvelle catégorie';
+            document.getElementById('modal-body').innerHTML = `
+                <div class="form-group">
+                    <label class="form-label">Nom de la catégorie</label>
+                    <input type="text" class="form-input" id="category-name" placeholder="Ex: Électronique" value="${isEdit ? escapeHtml(category.name) : ''}">
+                </div>
+            `;
+            document.getElementById('modal-footer').innerHTML = `
+                <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+                <button class="btn btn-secondary" onclick="saveCategory(${id})">${isEdit ? 'Modifier' : 'Créer'}</button>
+            `;
+            openModal();
+        }
+
+        // CRUD operations
+        async function saveProduct(id) {
+            const name = document.getElementById('product-name').value.trim();
+            const categoryid = parseInt(document.getElementById('product-category').value);
+            const price = parseFloat(document.getElementById('product-price').value);
+
+            if (!name) {
+                showError('Le nom du produit est requis');
+                return;
+            }
+            if (!categoryid) {
+                showError('Veuillez sélectionner une catégorie');
+                return;
+            }
+            if (isNaN(price) || price < 0) {
+                showError('Le prix doit être un nombre positif');
+                return;
+            }
+
             try {
-                await fetch('/api/products', {
-                    method: 'POST',
+                const method = id ? 'PUT' : 'POST';
+                const body = id ? { id, name, categoryid, price } : { name, categoryid, price };
+                
+                const response = await fetch('/api/products', {
+                    method,
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, categoryid, price })
+                    body: JSON.stringify(body)
                 });
+
+                if (!response.ok) throw new Error('Erreur lors de l\'enregistrement');
+                
+                closeModal();
                 await fetchData();
             } catch (error) {
                 showError(error.message);
@@ -241,28 +1386,43 @@
         }
 
         async function deleteProduct(id) {
-            if (!confirm('Supprimer ce produit ?')) return;
+            if (!confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) return;
+            
             try {
-                await fetch('/api/products', {
+                const response = await fetch('/api/products', {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id })
                 });
+
+                if (!response.ok) throw new Error('Erreur lors de la suppression');
                 await fetchData();
             } catch (error) {
                 showError(error.message);
             }
         }
 
-        async function addCategory() {
-            const name = prompt('Nom de la catégorie:');
-            if (!name) return;
+        async function saveCategory(id) {
+            const name = document.getElementById('category-name').value.trim();
+
+            if (!name) {
+                showError('Le nom de la catégorie est requis');
+                return;
+            }
+
             try {
-                await fetch('/api/categories', {
-                    method: 'POST',
+                const method = id ? 'PUT' : 'POST';
+                const body = id ? { id, name } : { name };
+                
+                const response = await fetch('/api/categories', {
+                    method,
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name })
+                    body: JSON.stringify(body)
                 });
+
+                if (!response.ok) throw new Error('Erreur lors de l\'enregistrement');
+                
+                closeModal();
                 await fetchData();
             } catch (error) {
                 showError(error.message);
@@ -270,22 +1430,562 @@
         }
 
         async function deleteCategory(id) {
-            if (!confirm('Supprimer cette catégorie ?')) return;
+            const productsInCategory = products.filter(p => p.categoryid === id);
+            const message = productsInCategory.length > 0 
+                ? `Cette catégorie contient ${productsInCategory.length} produit(s). Supprimer quand même ?`
+                : 'Êtes-vous sûr de vouloir supprimer cette catégorie ?';
+            
+            if (!confirm(message)) return;
+            
             try {
-                await fetch('/api/categories', {
+                const response = await fetch('/api/categories', {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id })
                 });
+
+                if (!response.ok) throw new Error('Erreur lors de la suppression');
                 await fetchData();
             } catch (error) {
                 showError(error.message);
             }
         }
 
-        // Init
-        fetchData();
-        setInterval(fetchData, 30000); // Refresh toutes les 30s
+        // Close modal on outside click
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-overlay')) {
+                closeModal();
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // ==================== CHATBOT PERSONNALISÉ ====================
+        class WelcomeChatbot {
+            constructor() {
+                this.isOpen = false;
+                this.init();
+            }
+
+            init() {
+                this.createChatbotUI();
+                this.attachEventListeners();
+                // Ouvrir automatiquement après 1 seconde
+                setTimeout(() => this.openChat(), 1000);
+            }
+
+            createChatbotUI() {
+                const chatbotHTML = `
+                    <div id="welcome-chatbot-container" class="welcome-chatbot-container">
+                        <!-- Chatbot Window -->
+                        <div id="welcome-chatbot-window" class="welcome-chatbot-window">
+                            <!-- Header -->
+                            <div class="welcome-chatbot-header">
+                                <div class="welcome-chatbot-header-content">
+                                    <div class="welcome-chatbot-title">
+                                        <i class="fas fa-robot"></i>
+                                        <span>Assistant Nexus</span>
+                                    </div>
+                                </div>
+                                <button id="welcome-chatbot-close" class="welcome-chatbot-close-btn" title="Fermer">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+
+                            <!-- Messages Area -->
+                            <div class="welcome-chatbot-messages" id="welcome-chatbot-messages">
+                                <div class="welcome-message bot">
+                                    <div class="message-avatar">
+                                        <i class="fas fa-robot"></i>
+                                    </div>
+                                    <div class="message-bubble">
+                                        Salut, je suis là pour t'aider à gérer tes produits chers admin
+                                    </div>
+                                </div>
+                                <div class="welcome-message bot">
+                                    <div class="message-avatar">
+                                        <i class="fas fa-robot"></i>
+                                    </div>
+                                    <div class="message-bubble">
+                                        Je suis connecté à votre base des données produits. Je peux gérer, modifier, supprimer et ajouter les produits ainsi que les catégories. Je peux rechercher en ligne les produits concurrents aussi.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Input Area -->
+                            <div class="welcome-chatbot-footer">
+                                <form id="welcome-chatbot-form" class="welcome-chatbot-form">
+                                    <input 
+                                        type="text" 
+                                        id="welcome-chatbot-input" 
+                                        class="welcome-chatbot-input" 
+                                        placeholder="Écrivez votre message..."
+                                        autocomplete="off"
+                                    />
+                                    <button type="submit" class="welcome-chatbot-send-btn">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Toggle Button (pour rouvrir) -->
+                        <button id="welcome-chatbot-toggle" class="welcome-chatbot-toggle" title="Assistant" style="display: none;">
+                            <i class="fas fa-comment-dots"></i>
+                        </button>
+                    </div>
+                `;
+
+                document.body.insertAdjacentHTML('beforeend', chatbotHTML);
+                this.addStyles();
+            }
+
+            addStyles() {
+                const styles = `
+                    <style>
+                        /* ============ WELCOME CHATBOT STYLES ============ */
+                        .welcome-chatbot-container {
+                            position: fixed;
+                            bottom: 20px;
+                            right: 20px;
+                            z-index: 10000;
+                            font-family: 'Outfit', sans-serif;
+                        }
+
+                        .welcome-chatbot-window {
+                            width: 400px;
+                            height: 550px;
+                            background: linear-gradient(135deg, rgba(20, 20, 35, 0.98), rgba(30, 30, 50, 0.98));
+                            backdrop-filter: blur(20px);
+                            border-radius: 20px;
+                            border: 2px solid var(--glass-border);
+                            box-shadow: 
+                                0 0 60px rgba(0, 240, 255, 0.2),
+                                0 0 100px rgba(255, 0, 229, 0.15),
+                                0 30px 80px rgba(0, 0, 0, 0.7);
+                            opacity: 0;
+                            transform: scale(0.85) translateY(30px);
+                            pointer-events: none;
+                            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+                            display: flex;
+                            flex-direction: column;
+                        }
+
+                        .welcome-chatbot-window.active {
+                            opacity: 1;
+                            transform: scale(1) translateY(0);
+                            pointer-events: auto;
+                        }
+
+                        /* Header */
+                        .welcome-chatbot-header {
+                            background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(255, 0, 229, 0.15));
+                            border-bottom: 2px solid var(--glass-border);
+                            padding: 16px 20px;
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            border-radius: 18px 18px 0 0;
+                        }
+
+                        .welcome-chatbot-title {
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                            font-size: 16px;
+                            font-weight: 700;
+                            background: linear-gradient(90deg, var(--primary), var(--secondary));
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            background-clip: text;
+                        }
+
+                        .welcome-chatbot-title i {
+                            font-size: 20px;
+                            background: linear-gradient(135deg, var(--primary), var(--secondary));
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            animation: robotBounce 2s ease-in-out infinite;
+                        }
+
+                        @keyframes robotBounce {
+                            0%, 100% { transform: translateY(0); }
+                            50% { transform: translateY(-4px); }
+                        }
+
+                        .welcome-chatbot-close-btn {
+                            background: rgba(255, 255, 255, 0.05);
+                            border: 1px solid var(--glass-border);
+                            color: var(--text-primary);
+                            width: 32px;
+                            height: 32px;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            transition: all 0.3s;
+                        }
+
+                        .welcome-chatbot-close-btn:hover {
+                            background: rgba(255, 61, 113, 0.2);
+                            border-color: var(--danger);
+                            transform: rotate(90deg);
+                        }
+
+                        /* Messages Area */
+                        .welcome-chatbot-messages {
+                            flex: 1;
+                            overflow-y: auto;
+                            padding: 20px;
+                            display: flex;
+                            flex-direction: column;
+                            gap: 16px;
+                        }
+
+                        .welcome-chatbot-messages::-webkit-scrollbar {
+                            width: 6px;
+                        }
+
+                        .welcome-chatbot-messages::-webkit-scrollbar-track {
+                            background: transparent;
+                        }
+
+                        .welcome-chatbot-messages::-webkit-scrollbar-thumb {
+                            background: linear-gradient(180deg, var(--primary), var(--secondary));
+                            border-radius: 3px;
+                        }
+
+                        .welcome-message {
+                            display: flex;
+                            gap: 12px;
+                            animation: messageSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+                        }
+
+                        @keyframes messageSlideIn {
+                            from {
+                                opacity: 0;
+                                transform: translateY(10px);
+                            }
+                            to {
+                                opacity: 1;
+                                transform: translateY(0);
+                            }
+                        }
+
+                        .welcome-message.user {
+                            justify-content: flex-end;
+                        }
+
+                        .message-avatar {
+                            width: 36px;
+                            height: 36px;
+                            min-width: 36px;
+                            background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(255, 0, 229, 0.2));
+                            border: 2px solid var(--glass-border);
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 18px;
+                            color: var(--primary);
+                        }
+
+                        .message-bubble {
+                            max-width: 75%;
+                            padding: 12px 16px;
+                            border-radius: 16px;
+                            background: rgba(255, 255, 255, 0.08);
+                            border: 1px solid var(--glass-border);
+                            color: var(--text-primary);
+                            line-height: 1.5;
+                            font-size: 14px;
+                        }
+
+                        .welcome-message.user .message-bubble {
+                            background: linear-gradient(135deg, var(--primary), var(--secondary));
+                            border: none;
+                            color: white;
+                        }
+
+                        .welcome-message.user .message-avatar {
+                            order: 2;
+                        }
+
+                        /* Footer Input */
+                        .welcome-chatbot-footer {
+                            border-top: 2px solid var(--glass-border);
+                            padding: 16px;
+                            background: rgba(255, 255, 255, 0.02);
+                            border-radius: 0 0 18px 18px;
+                        }
+
+                        .welcome-chatbot-form {
+                            display: flex;
+                            gap: 10px;
+                            align-items: center;
+                        }
+
+                        .welcome-chatbot-input {
+                            flex: 1;
+                            background: rgba(255, 255, 255, 0.08);
+                            border: 2px solid var(--glass-border);
+                            color: var(--text-primary);
+                            padding: 12px 16px;
+                            border-radius: 12px;
+                            font-family: 'Outfit', sans-serif;
+                            font-size: 14px;
+                            outline: none;
+                            transition: all 0.3s;
+                        }
+
+                        .welcome-chatbot-input:focus {
+                            border-color: var(--primary);
+                            background: rgba(0, 240, 255, 0.1);
+                            box-shadow: 0 0 16px rgba(0, 240, 255, 0.2);
+                        }
+
+                        .welcome-chatbot-input::placeholder {
+                            color: var(--text-muted);
+                        }
+
+                        .welcome-chatbot-send-btn {
+                            width: 44px;
+                            height: 44px;
+                            min-width: 44px;
+                            background: linear-gradient(135deg, var(--primary), var(--secondary));
+                            border: none;
+                            color: white;
+                            border-radius: 12px;
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            transition: all 0.3s;
+                            box-shadow: 0 4px 16px rgba(0, 240, 255, 0.3);
+                        }
+
+                        .welcome-chatbot-send-btn:hover {
+                            transform: scale(1.05) rotate(-5deg);
+                            box-shadow: 0 6px 24px rgba(0, 240, 255, 0.5);
+                        }
+
+                        /* Typing Indicator */
+                        .typing-indicator {
+                            display: flex;
+                            gap: 4px;
+                            align-items: center;
+                            padding: 4px 0;
+                        }
+
+                        .typing-indicator span {
+                            width: 8px;
+                            height: 8px;
+                            background: var(--primary);
+                            border-radius: 50%;
+                            animation: typingBounce 1.4s ease-in-out infinite;
+                        }
+
+                        .typing-indicator span:nth-child(2) {
+                            animation-delay: 0.2s;
+                        }
+
+                        .typing-indicator span:nth-child(3) {
+                            animation-delay: 0.4s;
+                        }
+
+                        @keyframes typingBounce {
+                            0%, 60%, 100% { 
+                                transform: translateY(0);
+                                opacity: 0.7;
+                            }
+                            30% { 
+                                transform: translateY(-10px);
+                                opacity: 1;
+                            }
+                        }
+
+                        /* Toggle Button */
+                        .welcome-chatbot-toggle {
+                            position: fixed;
+                            bottom: 24px;
+                            right: 24px;
+                            width: 60px;
+                            height: 60px;
+                            border-radius: 50%;
+                            background: linear-gradient(135deg, var(--primary), var(--secondary));
+                            border: 2px solid var(--primary);
+                            color: white;
+                            font-size: 24px;
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            box-shadow: 0 8px 30px rgba(0, 240, 255, 0.4);
+                            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+                            z-index: 9999;
+                        }
+
+                        .welcome-chatbot-toggle:hover {
+                            transform: scale(1.1) rotate(-10deg);
+                            box-shadow: 0 12px 40px rgba(0, 240, 255, 0.6);
+                        }
+
+                        .welcome-chatbot-toggle i {
+                            animation: bounce 2s ease-in-out infinite;
+                        }
+
+                        @keyframes bounce {
+                            0%, 100% { transform: translateY(0); }
+                            50% { transform: translateY(-5px); }
+                        }
+
+                        @media (max-width: 480px) {
+                            .welcome-chatbot-window {
+                                width: calc(100vw - 48px);
+                                max-width: 380px;
+                            }
+
+                            .welcome-chatbot-container {
+                                bottom: 16px;
+                                right: 16px;
+                            }
+                        }
+                    </style>
+                `;
+
+                document.head.insertAdjacentHTML('beforeend', styles);
+            }
+
+            attachEventListeners() {
+                const closeBtn = document.getElementById('welcome-chatbot-close');
+                const toggleBtn = document.getElementById('welcome-chatbot-toggle');
+                const form = document.getElementById('welcome-chatbot-form');
+
+                closeBtn.addEventListener('click', () => this.closeChat());
+                toggleBtn.addEventListener('click', () => this.openChat());
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleSendMessage();
+                });
+
+                // Auto scroll
+                const messagesContainer = document.getElementById('welcome-chatbot-messages');
+                const observer = new MutationObserver(() => {
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                });
+                observer.observe(messagesContainer, { childList: true });
+            }
+
+            handleSendMessage() {
+                const input = document.getElementById('welcome-chatbot-input');
+                const message = input.value.trim();
+
+                if (!message) return;
+
+                // Add user message
+                this.addMessage(message, 'user');
+                input.value = '';
+
+                // Show loading indicator
+                this.addLoadingMessage();
+
+                // Send to n8n webhook via GET
+                const webhookUrl = `http://135.225.56.119:5678/webhook-test/f83f5f08-33e8-46dc-a8ee-909ce18a36a9?message=${encodeURIComponent(message)}`;
+                
+                fetch(webhookUrl, {
+                    method: 'GET'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Remove loading
+                    this.removeLoadingMessage();
+                    
+                    // Add bot response
+                    const botResponse = data.response || data.message || data.output || "Message reçu !";
+                    this.addMessage(botResponse, 'bot');
+                })
+                .catch(error => {
+                    console.error('Erreur webhook:', error);
+                    this.removeLoadingMessage();
+                    this.addMessage("Désolé, une erreur est survenue. Réessayez plus tard.", 'bot');
+                });
+            }
+
+            addLoadingMessage() {
+                const messagesContainer = document.getElementById('welcome-chatbot-messages');
+                const loadingHTML = `
+                    <div class="welcome-message bot" id="loading-message-bot">
+                        <div class="message-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="message-bubble">
+                            <div class="typing-indicator">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                messagesContainer.insertAdjacentHTML('beforeend', loadingHTML);
+            }
+
+            removeLoadingMessage() {
+                const loadingMsg = document.getElementById('loading-message-bot');
+                if (loadingMsg) loadingMsg.remove();
+            }
+
+            addMessage(text, type) {
+                const messagesContainer = document.getElementById('welcome-chatbot-messages');
+                const messageHTML = `
+                    <div class="welcome-message ${type}">
+                        ${type === 'bot' ? `<div class="message-avatar"><i class="fas fa-robot"></i></div>` : ''}
+                        <div class="message-bubble">${this.escapeHtml(text)}</div>
+                        ${type === 'user' ? `<div class="message-avatar"><i class="fas fa-user"></i></div>` : ''}
+                    </div>
+                `;
+                messagesContainer.insertAdjacentHTML('beforeend', messageHTML);
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            openChat() {
+                const window = document.getElementById('welcome-chatbot-window');
+                const toggle = document.getElementById('welcome-chatbot-toggle');
+                
+                window.classList.add('active');
+                toggle.style.display = 'none';
+                this.isOpen = true;
+            }
+
+            closeChat() {
+                const window = document.getElementById('welcome-chatbot-window');
+                const toggle = document.getElementById('welcome-chatbot-toggle');
+                
+                window.classList.remove('active');
+                setTimeout(() => {
+                    toggle.style.display = 'flex';
+                }, 500);
+                this.isOpen = false;
+            }
+        }
+
+        // Initialize welcome chatbot
+        let welcomeChatbot;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchData();
+            welcomeChatbot = new WelcomeChatbot();
+        });
     </script>
 </body>
 </html>
