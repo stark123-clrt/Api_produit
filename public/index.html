@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard API Produits</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div id="app" class="min-h-screen">
+        <header class="bg-white shadow-sm border-b">
+            <div class="max-w-7xl mx-auto px-4 py-4">
+                <h1 class="text-2xl font-bold text-gray-900">Dashboard API Produits</h1>
+                <p class="text-sm text-gray-600">Gestion des produits et catégories</p>
+            </div>
+        </header>
+
+        <nav class="bg-white shadow-sm border-b">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex space-x-8">
+                    <button onclick="showTab('dashboard')" class="tab-btn py-4 px-2 border-b-2 border-blue-500 text-blue-600 font-medium text-sm">
+                        Dashboard
+                    </button>
+                    <button onclick="showTab('products')" class="tab-btn py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm">
+                        Produits
+                    </button>
+                    <button onclick="showTab('categories')" class="tab-btn py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm">
+                        Catégories
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <main class="max-w-7xl mx-auto px-4 py-8">
+            <div id="error" class="hidden mb-4 bg-red-50 border-l-4 border-red-500 p-4 rounded"></div>
+            <div id="loading" class="flex items-center justify-center h-64">
+                <div class="text-center">
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
+                    <p class="mt-4 text-gray-600">Chargement...</p>
+                </div>
+            </div>
+
+            <div id="content" class="hidden"></div>
+        </main>
+    </div>
+
+    <script>
+        let products = [];
+        let categories = [];
+        let currentTab = 'dashboard';
+
+        async function fetchData() {
+            try {
+                const [prodRes, catRes] = await Promise.all([
+                    fetch('/api/products'),
+                    fetch('/api/categories')
+                ]);
+                products = await prodRes.json();
+                categories = await catRes.json();
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('content').classList.remove('hidden');
+                renderTab(currentTab);
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+            setTimeout(() => errorDiv.classList.add('hidden'), 5000);
+        }
+
+        function showTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-blue-500', 'text-blue-600');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+            event.target.classList.add('border-blue-500', 'text-blue-600');
+            event.target.classList.remove('border-transparent', 'text-gray-500');
+            renderTab(tab);
+        }
+
+        function renderTab(tab) {
+            const content = document.getElementById('content');
+            if (tab === 'dashboard') {
+                renderDashboard(content);
+            } else if (tab === 'products') {
+                renderProducts(content);
+            } else if (tab === 'categories') {
+                renderCategories(content);
+            }
+        }
+
+        function renderDashboard(container) {
+            const totalProducts = products.length;
+            const totalCategories = categories.length;
+            const avgPrice = products.length > 0 ? (products.reduce((sum, p) => sum + parseFloat(p.price), 0) / products.length).toFixed(2) : 0;
+            const totalValue = products.reduce((sum, p) => sum + parseFloat(p.price), 0).toFixed(2);
+
+            container.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <p class="text-sm text-gray-600">Total Produits</p>
+                        <p class="text-3xl font-bold text-gray-900">${totalProducts}</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <p class="text-sm text-gray-600">Catégories</p>
+                        <p class="text-3xl font-bold text-gray-900">${totalCategories}</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <p class="text-sm text-gray-600">Prix Moyen</p>
+                        <p class="text-3xl font-bold text-gray-900">${avgPrice} €</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <p class="text-sm text-gray-600">Valeur Totale</p>
+                        <p class="text-3xl font-bold text-gray-900">${totalValue} €</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow">
+                    <div class="p-6 border-b">
+                        <h2 class="text-lg font-semibold text-gray-900">Produits Récents</h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 border-b">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nom</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Catégorie</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Prix</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                ${products.slice().reverse().slice(0, 5).map(p => `
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 text-sm font-medium text-gray-900">${p.name}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-600">
+                                            <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-medium">
+                                                ${getCategoryName(p.categoryid)}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm font-semibold text-gray-900">${parseFloat(p.price).toFixed(2)} €</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderProducts(container) {
+            container.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900">Gestion des Produits</h2>
+                    <button onclick="addProduct()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        + Nouveau Produit
+                    </button>
+                </div>
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 border-b">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nom</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Catégorie</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Prix</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            ${products.map(p => `
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 text-sm font-medium text-gray-900">${p.name}</td>
+                                    <td class="px-6 py-4 text-sm">
+                                        <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-medium">
+                                            ${getCategoryName(p.categoryid)}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm font-semibold text-gray-900">${parseFloat(p.price).toFixed(2)} €</td>
+                                    <td class="px-6 py-4 text-sm text-right">
+                                        <button onclick="editProduct(${p.id})" class="text-blue-600 hover:text-blue-800 mr-3">✏️</button>
+                                        <button onclick="deleteProduct(${p.id})" class="text-red-600 hover:text-red-800">🗑️</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function renderCategories(container) {
+            container.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900">Gestion des Catégories</h2>
+                    <button onclick="addCategory()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
+                        + Nouvelle Catégorie
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    ${categories.map(c => `
+                        <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">${c.name}</h3>
+                                <div class="flex gap-2">
+                                    <button onclick="editCategory(${c.id})" class="text-blue-600 hover:text-blue-800">✏️</button>
+                                    <button onclick="deleteCategory(${c.id})" class="text-red-600 hover:text-red-800">🗑️</button>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600">${products.filter(p => p.categoryid === c.id).length} produit(s)</p>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function getCategoryName(id) {
+            const cat = categories.find(c => c.id === id);
+            return cat ? cat.name : id;
+        }
+
+        async function addProduct() {
+            const name = prompt('Nom du produit:');
+            if (!name) return;
+            const categoryid = parseInt(prompt('ID Catégorie:'));
+            const price = parseFloat(prompt('Prix:'));
+            
+            try {
+                await fetch('/api/products', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, categoryid, price })
+                });
+                await fetchData();
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm('Supprimer ce produit ?')) return;
+            try {
+                await fetch('/api/products', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id })
+                });
+                await fetchData();
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        async function addCategory() {
+            const name = prompt('Nom de la catégorie:');
+            if (!name) return;
+            try {
+                await fetch('/api/categories', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+                await fetchData();
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        async function deleteCategory(id) {
+            if (!confirm('Supprimer cette catégorie ?')) return;
+            try {
+                await fetch('/api/categories', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id })
+                });
+                await fetchData();
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        // Init
+        fetchData();
+        setInterval(fetchData, 30000); // Refresh toutes les 30s
+    </script>
+</body>
+</html>
