@@ -1933,7 +1933,7 @@
                 this.addLoadingMessage();
 
                 // Send to n8n webhook via GET
-                const webhookUrl = `http://135.225.56.119:5678/webhook/f83f5f08-33e8-46dc-a8ee-909ce18a36a9?message=${encodeURIComponent(message)}`;
+                const webhookUrl = `https://query-revolution-console-theta.trycloudflare.com/webhook/f83f5f08-33e8-46dc-a8ee-909ce18a36a9?message=${encodeURIComponent(message)}`;
                 
                 fetch(webhookUrl, {
                     method: 'GET'
