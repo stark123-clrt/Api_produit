@@ -1026,6 +1026,29 @@
         let products = [];
         let categories = [];
         let currentTab = 'dashboard';
+        
+        // Simple auto-refresh toutes les 3 secondes
+        setInterval(async () => {
+            try {
+                const [prodRes, catRes] = await Promise.all([
+                    fetch('/api/products'),
+                    fetch('/api/categories')
+                ]);
+                
+                if (prodRes.ok && catRes.ok) {
+                    const newProducts = await prodRes.json();
+                    const newCategories = await catRes.json();
+                    
+                    // Mettre à jour seulement si changement
+                    if (JSON.stringify(newProducts) !== JSON.stringify(products) ||
+                        JSON.stringify(newCategories) !== JSON.stringify(categories)) {
+                        products = newProducts;
+                        categories = newCategories;
+                        renderTab(currentTab);
+                    }
+                }
+            } catch (e) {}
+        }, 3000);
 
         // Fetch data from API
         async function fetchData() {
@@ -1049,6 +1072,7 @@
                 contentEl.classList.remove('hidden');
                 
                 renderTab(currentTab);
+                
             } catch (error) {
                 contentEl.innerHTML = `
                     <div class="empty-state">
@@ -1499,7 +1523,7 @@
                                 <div class="welcome-chatbot-header-content">
                                     <div class="welcome-chatbot-title">
                                         <i class="fas fa-robot"></i>
-                                        <span>Assistant Nexus</span>
+                                        <span>Assistant Stark</span>
                                     </div>
                                 </div>
                                 <button id="welcome-chatbot-close" class="welcome-chatbot-close-btn" title="Fermer">
@@ -1522,7 +1546,7 @@
                                         <i class="fas fa-robot"></i>
                                     </div>
                                     <div class="message-bubble">
-                                      Je suis directement connecté à votre base de données produits. J'assure la gestion complète de votre catalogue ajout, modification, suppression de produits et de catégories. De plus, je réalise une veille concurrentielle en ligne pour identifier et intégrer automatiquement de nouveaux produits à votre base
+                                        Je suis connecté à votre base des données produits. Je peux gérer, modifier, supprimer et ajouter les produits ainsi que les catégories. Je peux rechercher en ligne les produits concurrents aussi.
                                     </div>
                                 </div>
                             </div>
@@ -1909,7 +1933,7 @@
                 this.addLoadingMessage();
 
                 // Send to n8n webhook via GET
-                const webhookUrl = `http://135.225.56.119:5678/webhook-test/f83f5f08-33e8-46dc-a8ee-909ce18a36a9?message=${encodeURIComponent(message)}`;
+                const webhookUrl = `http://135.225.56.119:5678/webhook/f83f5f08-33e8-46dc-a8ee-909ce18a36a9?message=${encodeURIComponent(message)}`;
                 
                 fetch(webhookUrl, {
                     method: 'GET'
