@@ -1137,7 +1137,7 @@
                                             <td class="product-name">${escapeHtml(p.name)}</td>
                                             <td>
                                                 <span class="category-badge">
-                                                    <i class="fas fa-tag"></i> ${escapeHtml(getCategoryName(p.category_id))}
+                                                    <i class="fas fa-tag"></i> ${escapeHtml(getCategoryName(p.categoryid))}
                                                 </span>
                                             </td>
                                             <td class="price">${parseFloat(p.price || 0).toFixed(2)} €</td>
@@ -1188,7 +1188,7 @@
                                             <td class="product-name">${escapeHtml(p.name)}</td>
                                             <td>
                                                 <span class="category-badge">
-                                                    <i class="fas fa-tag"></i> ${escapeHtml(getCategoryName(p.category_id))}
+                                                    <i class="fas fa-tag"></i> ${escapeHtml(getCategoryName(p.categoryid))}
                                                 </span>
                                             </td>
                                             <td class="price">${parseFloat(p.price || 0).toFixed(2)} €</td>
@@ -1252,7 +1252,7 @@
                                     </div>
                                     <h3 class="category-name">${escapeHtml(c.name)}</h3>
                                     <p class="category-count">
-                                        <span class="count-number">${products.filter(p => p.category_id === c.id).length}</span>
+                                        <span class="count-number">${products.filter(p => p.categoryid === c.id).length}</span>
                                         produit(s) associé(s)
                                     </p>
                                 </div>
@@ -1311,7 +1311,7 @@
                     <select class="form-select" id="product-category">
                         <option value="">Sélectionner une catégorie</option>
                         ${categories.map(c => `
-                            <option value="${c.id}" ${isEdit && product.category_id === c.id ? 'selected' : ''}>
+                            <option value="${c.id}" ${isEdit && product.categoryid === c.id ? 'selected' : ''}>
                                 ${escapeHtml(c.name)}
                             </option>
                         `).join('')}
@@ -1350,14 +1350,14 @@
         // CRUD operations
         async function saveProduct(id) {
             const name = document.getElementById('product-name').value.trim();
-            const category_id = parseInt(document.getElementById('product-category').value);
+            const categoryid = parseInt(document.getElementById('product-category').value);
             const price = parseFloat(document.getElementById('product-price').value);
 
             if (!name) {
                 showError('Le nom du produit est requis');
                 return;
             }
-            if (!category_id) {
+            if (!categoryid) {
                 showError('Veuillez sélectionner une catégorie');
                 return;
             }
@@ -1368,7 +1368,7 @@
 
             try {
                 const method = id ? 'PUT' : 'POST';
-                const body = id ? { id, name, category_id, price } : { name, category_id, price };
+                const body = id ? { id, name, categoryid, price } : { name, categoryid, price };
                 
                 const response = await fetch('/api/products', {
                     method,
@@ -1430,7 +1430,7 @@
         }
 
         async function deleteCategory(id) {
-            const productsInCategory = products.filter(p => p.category_id === id);
+            const productsInCategory = products.filter(p => p.categoryid === id);
             const message = productsInCategory.length > 0 
                 ? `Cette catégorie contient ${productsInCategory.length} produit(s). Supprimer quand même ?`
                 : 'Êtes-vous sûr de vouloir supprimer cette catégorie ?';
