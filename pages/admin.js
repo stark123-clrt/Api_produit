@@ -87,7 +87,7 @@ export default function AdminDashboard() {
           import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
           
           createChat({
-            webhookUrl: 'https://stark123christ.app.n8n.cloud/webhook/fe33fc56-7b26-4c58-a523-773d78c4e364/chat',
+            webhookUrl:'http://135.225.56.119:5678/webhook/fe33fc56-7b26-4c58-a523-773d78c4e364/chat',
             mode: 'window',
             loadPreviousSession: true,
             showWelcomeScreen: true,
