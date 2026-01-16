@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulaire de Retour | Nexus</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00f0ff;
+            --primary-glow: rgba(0, 240, 255, 0.4);
+            --secondary: #ff00e5;
+            --secondary-glow: rgba(255, 0, 229, 0.4);
+            --accent: #7b61ff;
+            --success: #00ff9d;
+            --warning: #ffb800;
+            --danger: #ff3d71;
+            --bg-dark: #0a0a0f;
+            --bg-card: rgba(20, 20, 35, 0.7);
+            --bg-card-hover: rgba(30, 30, 50, 0.8);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.6);
+            --text-muted: rgba(255, 255, 255, 0.4);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(0, 240, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(255, 0, 229, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(123, 97, 255, 0.08) 0%, transparent 60%);
+            animation: bgRotate 30s linear infinite;
+        }
+
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+        }
+
+        @keyframes bgRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        .form-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .form-label .required {
+            color: var(--danger);
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .form-input::placeholder,
+        .form-select option,
+        .form-textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-select option {
+            background: var(--bg-dark);
+            color: var(--text-primary);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-submit {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: var(--bg-dark);
+            border: none;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px var(--primary-glow);
+        }
+
+        .btn-reset {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-reset:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .success-message {
+            background: rgba(0, 255, 157, 0.1);
+            border: 1px solid rgba(0, 255, 157, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: none;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .success-message i {
+            color: var(--success);
+            margin-right: 8px;
+        }
+
+        .error-message {
+            background: rgba(255, 61, 113, 0.1);
+            border: 1px solid rgba(255, 61, 113, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: none;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .error-message i {
+            color: var(--danger);
+            margin-right: 8px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--primary-glow);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .info-text {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 16px;
+            }
+
+            .form-card {
+                padding: 24px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <div class="grid-overlay"></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">N</div>
+                <div class="logo-text">Nexus</div>
+            </div>
+            <h1>Formulaire de Retour</h1>
+            <p class="subtitle">Signalez un problème avec votre commande</p>
+        </div>
+
+        <div class="form-card">
+            <div id="successMessage" class="success-message">
+                <i class="fas fa-check-circle"></i>
+                <span id="successText">Votre demande a été envoyée avec succès!</span>
+            </div>
+
+            <div id="errorMessage" class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorText">Une erreur s'est produite</span>
+            </div>
+
+            <form id="returnsForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Numéro de Commande <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="order_id" name="order_id" placeholder="ex: ORD-2025-001" required>
+                        <p class="info-text">Consultez votre email de confirmation pour trouver ce numéro</p>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email <span class="required">*</span></label>
+                        <input type="email" class="form-input" id="customer_email" name="customer_email" placeholder="votre@email.com" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Référence du Produit (SKU) <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="sku" name="sku" placeholder="ex: PROD-001" required>
+                        <p class="info-text">Visible sur le facture ou l'étiquette du produit</p>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">État du Produit <span class="required">*</span></label>
+                        <select class="form-select" id="product_condition" name="product_condition" required>
+                            <option value="">-- Sélectionner --</option>
+                            <option value="Comme neuf">Comme neuf</option>
+                            <option value="Bon">Bon</option>
+                            <option value="Endommagé">Endommagé</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group form-row full">
+                    <div>
+                        <label class="form-label">Motif du Retour <span class="required">*</span></label>
+                        <select class="form-select" id="reason" name="reason" required>
+                            <option value="">-- Sélectionner --</option>
+                            <option value="Défectueux">Défectueux</option>
+                            <option value="Non conforme">Non conforme à la description</option>
+                            <option value="Erreur de commande">Erreur de commande</option>
+                            <option value="Endommagé à la livraison">Endommagé à la livraison</option>
+                            <option value="Changement d'avis">Changement d'avis</option>
+                            <option value="Autre">Autre</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group form-row full">
+                    <div>
+                        <label class="form-label">Détails Supplémentaires</label>
+                        <textarea class="form-textarea" id="details" name="details" placeholder="Décrivez le problème en détail (optionnel)..."></textarea>
+                    </div>
+                </div>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 12px;">Envoi en cours...</p>
+                </div>
+
+                <div class="button-group">
+                    <button type="reset" class="btn btn-reset">
+                        <i class="fas fa-undo"></i> Réinitialiser
+                    </button>
+                    <button type="submit" class="btn btn-submit" id="submitBtn">
+                        <i class="fas fa-paper-plane"></i> Envoyer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Generate UUID
+        function generateUUID() {
+            const chars = '0123456789abcdef';
+            let uuid = '';
+            for (let i = 0; i < 32; i++) {
+                if (i === 8 || i === 12 || i === 16 || i === 20) uuid += '-';
+                uuid += chars[Math.floor(Math.random() * 16)];
+            }
+            return uuid;
+        }
+
+        // Generate request ID
+        function generateRequestId() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const randomPart = Math.random().toString(16).substr(2, 6);
+            return `req_${year}${month}${day}_${randomPart}`;
+        }
+
+        // Get ISO timestamp
+        function getISOTimestamp() {
+            return new Date().toISOString();
+        }
+
+        // Show message
+        function showMessage(type, message) {
+            const successEl = document.getElementById('successMessage');
+            const errorEl = document.getElementById('errorMessage');
+            const successText = document.getElementById('successText');
+            const errorText = document.getElementById('errorText');
+
+            if (type === 'success') {
+                successText.textContent = message;
+                successEl.classList.add('show');
+                setTimeout(() => successEl.classList.remove('show'), 5000);
+            } else {
+                errorText.textContent = message;
+                errorEl.classList.add('show');
+                setTimeout(() => errorEl.classList.remove('show'), 5000);
+            }
+        }
+
+        // Form submission
+        document.getElementById('returnsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            loading.classList.add('show');
+
+            try {
+                // Get form values
+                const order_id = document.getElementById('order_id').value.trim();
+                const customer_email = document.getElementById('customer_email').value.trim();
+                const sku = document.getElementById('sku').value.trim();
+                const reason = document.getElementById('reason').value.trim();
+                const product_condition = document.getElementById('product_condition').value.trim();
+                const details = document.getElementById('details').value.trim();
+
+                // Validation
+                if (!order_id || !customer_email || !sku || !reason || !product_condition) {
+                    throw new Error('Tous les champs marqués d\'un * sont obligatoires');
+                }
+
+                // Generate automatic fields
+                const payload = {
+                    request_id: generateRequestId(),
+                    created_at: getISOTimestamp(),
+                    channel: 'contact_form',
+                    order_id,
+                    customer_email,
+                    sku,
+                    reason,
+                    product_condition,
+                    ...(details && { details })
+                };
+
+                console.log(' Envoi du payload:', payload);
+
+                // Send via backend proxy to avoid CORS
+                const webhookUrl = '/api/returns';
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erreur serveur: ${response.status}`);
+                }
+
+                console.log('✅ Requête envoyée avec succès');
+
+                // Success
+                showMessage('success', '✅ Votre demande de retour a été envoyée avec succès! Numéro de suivi: ' + payload.request_id);
+                document.getElementById('returnsForm').reset();
+            } catch (error) {
+                console.error('❌ Erreur:', error);
+                showMessage('error', '❌ ' + error.message);
+            } finally {
+                // Enable button and hide loading
+                submitBtn.disabled = false;
+                loading.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>

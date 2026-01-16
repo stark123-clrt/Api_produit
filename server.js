@@ -17,13 +17,19 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Webhook retour (n8n) - configurable via env
+const RETURNS_WEBHOOK_URL = process.env.RETURNS_WEBHOOK_URL || 'https://belvans.app.n8n.cloud/webhook-test/0d917279-b84e-492d-9db4-26af97eab4c9';
+
+
 // ==================== PROXY CHATBOT N8N ====================
 app.get('/api/chat', async (req, res) => {
   try {
+    
     const message = req.query.message;
     if (!message) {
       return res.status(400).json({ error: 'Message requis' });
     }
+
 
     // Appel vers n8n via Cloudflare tunnel
     const n8nUrl = `https://query-revolution-console-theta.trycloudflare.com/webhook/f83f5f08-33e8-46dc-a8ee-909ce18a36a9?message=${encodeURIComponent(message)}`;
@@ -37,6 +43,7 @@ app.get('/api/chat', async (req, res) => {
     res.status(500).json({ error: 'Erreur de connexion au chatbot' });
   }
 });
+
 
 // ==================== ROUTES PRODUCTS ====================
 app.get('/api/products', async (req, res) => {
@@ -151,4 +158,31 @@ app.get('/', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
+});
+
+// ==================== PROXY RETOURS (n8n) ====================
+app.post('/api/returns', async (req, res) => {
+  try {
+    if (!RETURNS_WEBHOOK_URL) {
+      return res.status(500).json({ error: 'RETURNS_WEBHOOK_URL non configuré' });
+    }
+
+    const response = await fetch(RETURNS_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req.body)
+    });
+
+    const contentType = response.headers.get('content-type') || '';
+    const isJson = contentType.includes('application/json');
+    const payload = isJson ? await response.json() : await response.text();
+
+    res.status(response.status)
+      .set('Access-Control-Allow-Origin', '*')
+      .set('Access-Control-Allow-Headers', 'Content-Type')
+      .send(payload);
+  } catch (error) {
+    console.error('Erreur proxy returns:', error.message);
+    res.status(500).json({ error: 'Erreur de connexion au webhook returns', detail: error.message });
+  }
 });
