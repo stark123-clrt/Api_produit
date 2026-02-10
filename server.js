@@ -18,7 +18,7 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Webhook retour (n8n) - configurable via env
-const RETURNS_WEBHOOK_URL = process.env.RETURNS_WEBHOOK_URL || 'https://belvans.app.n8n.cloud/webhook-test/0d917279-b84e-492d-9db4-26af97eab4c9';
+const RETURNS_WEBHOOK_URL = process.env.RETURNS_WEBHOOK_URL || 'https://vids-pens-generation-rangers.trycloudflare.com/webhook/f83f5f08-33e8-46dc-a8ee-909ce18a36a9';
 
 
 // ==================== PROXY CHATBOT N8N ====================
