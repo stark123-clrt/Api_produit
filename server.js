@@ -32,7 +32,7 @@ app.get('/api/chat', async (req, res) => {
 
 
     // Appel vers n8n via Cloudflare tunnel
-    const n8nUrl = `https://query-revolution-console-theta.trycloudflare.com/webhook/f83f5f08-33e8-46dc-a8ee-909ce18a36a9?message=${encodeURIComponent(message)}`;
+    const n8nUrl = `https://vids-pens-generation-rangers.trycloudflare.com/webhook/f83f5f08-33e8-46dc-a8ee-909ce18a36a9?message=${encodeURIComponent(message)}`;
     
     const response = await fetch(n8nUrl);
     const data = await response.json();
