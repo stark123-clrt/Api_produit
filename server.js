@@ -18,7 +18,7 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Webhook retour (n8n) - configurable via env
-const RETURNS_WEBHOOK_URL = process.env.RETURNS_WEBHOOK_URL || 'https://colorado-queens-participated-weeks.trycloudflare.com/webhook-test/3a7c472d-6bb2-4f05-8431-4bd7b417b8e4';
+const RETURNS_WEBHOOK_URL = process.env.RETURNS_WEBHOOK_URL || 'https://colorado-queens-participated-weeks.trycloudflare.com/webhook/3a7c472d-6bb2-4f05-8431-4bd7b417b8e4';
 
 
 // ==================== PROXY CHATBOT N8N ====================
@@ -32,7 +32,7 @@ app.get('/api/chat', async (req, res) => {
 
 
     // Appel vers n8n via Cloudflare tunnel
-    const n8nUrl = `https://colorado-queens-participated-weeks.trycloudflare.com/webhook-test/3a7c472d-6bb2-4f05-8431-4bd7b417b8e4?message=${encodeURIComponent(message)}`;
+    const n8nUrl = `https://colorado-queens-participated-weeks.trycloudflare.com/webhook/3a7c472d-6bb2-4f05-8431-4bd7b417b8e4?message=${encodeURIComponent(message)}`;
     
     const response = await fetch(n8nUrl);
     const data = await response.json();
